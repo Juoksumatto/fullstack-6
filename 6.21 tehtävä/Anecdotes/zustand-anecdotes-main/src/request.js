@@ -1,0 +1,54 @@
+const baseUrl = 'http://localhost:3001/anecdotes'
+
+const sortAnecdotes = (anecdotes) => {
+  return [...anecdotes].sort((a, b) => b.votes - a.votes)
+}
+
+export const getAnecdotes = async () => {
+  const response = await fetch(baseUrl)
+  if (!response.ok) {
+    throw new Error('Failed to fetch anecdotes')
+  }
+  const anecdotes = await response.json()
+  return sortAnecdotes(anecdotes)
+}
+
+export const createAnecdote = async (newAnecdote) => {
+  if (newAnecdote.content.trim() === '') {
+    throw new Error('Anecdote content cannot be empty')
+  }
+
+  if (newAnecdote.content.length < 5) {
+    throw new Error('Anecdote content must be at least 5 characters long')
+  }
+
+  const options = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newAnecdote)
+  }
+
+  const response = await fetch(baseUrl, options)
+
+  if (!response.ok) {
+    throw new Error('Failed to create anecdote')
+  }
+
+  return await response.json()
+}
+
+export const updateAnecdote = async (updatedAnecdote) => {
+  const options = {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updatedAnecdote)
+  }
+
+  const response = await fetch(`${baseUrl}/${updatedAnecdote.id}`, options)
+
+  if (!response.ok) {
+    throw new Error('Failed to update anecdote')
+  }
+
+  return await response.json()
+}
